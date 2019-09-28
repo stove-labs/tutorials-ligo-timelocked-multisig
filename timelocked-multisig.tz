@@ -1,0 +1,445 @@
+{ parameter
+    (or (or (pair (pair mutez address) timestamp) unit) (pair (pair mutez address) timestamp)) ;
+  storage
+    (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)) ;
+  code { LAMBDA
+           (set address)
+           unit
+           { DUP ;
+             SENDER ;
+             MEM ;
+             NOT ;
+             IF { PUSH string "You are not allowed to call the contract" ; FAILWITH }
+                { PUSH unit Unit } ;
+             DROP ;
+             DROP ;
+             PUSH unit Unit } ;
+         LAMBDA
+           (pair (pair (pair mutez address) timestamp) (pair (pair mutez address) timestamp))
+           bool
+           { DUP ;
+             CAR ;
+             DIP { DUP } ;
+             SWAP ;
+             CDR ;
+             DIP { DUP } ;
+             SWAP ;
+             CAR ;
+             CAR ;
+             DIP { DUP ; CAR ; CAR } ;
+             COMPARE ;
+             EQ ;
+             DIP { DIP { DUP } ;
+                   SWAP ;
+                   CAR ;
+                   CDR ;
+                   DIP { DUP ; CAR ; CDR } ;
+                   COMPARE ;
+                   EQ ;
+                   DIP { DIP { DUP } ;
+                         SWAP ;
+                         CDR ;
+                         DIP { DUP ; CDR } ;
+                         COMPARE ;
+                         EQ ;
+                         DIP { EMPTY_SET bool ; PUSH bool True } ;
+                         UPDATE ;
+                         PUSH bool True } ;
+                   UPDATE ;
+                   PUSH bool True } ;
+             UPDATE ;
+             DUP ;
+             PUSH bool False ;
+             MEM ;
+             DIP { DROP ; DROP ; DROP ; DROP } } ;
+         LAMBDA
+           (pair (pair mutez address) timestamp)
+           bool
+           { DUP ; CDR ; NOW ; SWAP ; COMPARE ; LE ; SWAP ; DROP } ;
+         DUP ;
+         LAMBDA
+           (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address))
+           (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address))
+           { EMPTY_SET address ;
+             DUP ;
+             DIP { DIP { DUP } ; SWAP ; DUP ; CDR ; SWAP ; CAR ; CDR } ;
+             PAIR ;
+             PAIR ;
+             SWAP ;
+             DROP ;
+             SWAP ;
+             DROP } ;
+         DUP ;
+         DIP { PAIR } ;
+         SWAP ;
+         LAMBDA (set address) bool { DUP ; SENDER ; MEM ; SWAP ; DROP } ;
+         SWAP ;
+         LAMBDA
+           (pair (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address))
+                 address)
+           (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address))
+           { DUP ;
+             CAR ;
+             DIP { DUP } ;
+             SWAP ;
+             CDR ;
+             DUP ;
+             DIP { DIP { DUP } ; SWAP ; CAR ; CAR ; PUSH bool True } ;
+             UPDATE ;
+             DIP { DIP { DUP } ; SWAP ; DUP ; CDR ; SWAP ; CAR ; CDR } ;
+             PAIR ;
+             PAIR ;
+             SWAP ;
+             DROP ;
+             SWAP ;
+             DROP ;
+             SWAP ;
+             DROP } ;
+         SWAP ;
+         LAMBDA
+           (pair (set address) (set address))
+           bool
+           { DUP ;
+             CAR ;
+             DIP { DUP } ;
+             SWAP ;
+             CDR ;
+             DIP { DUP } ;
+             SWAP ;
+             SIZE ;
+             DIP { DUP ; SIZE } ;
+             COMPARE ;
+             EQ ;
+             SWAP ;
+             DROP ;
+             SWAP ;
+             DROP ;
+             SWAP ;
+             DROP } ;
+         SWAP ;
+         LAMBDA
+           (pair (pair (pair (pair mutez address) timestamp)
+                       (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+                 (pair (lambda
+                          (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address))
+                          (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+                       (lambda (pair (pair mutez address) timestamp) bool)))
+           (pair (list operation)
+                 (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+           { DUP ;
+             CDR ;
+             SWAP ;
+             CAR ;
+             DIP { DUP ; CDR ; SWAP ; CAR } ;
+             DUP ;
+             CAR ;
+             DIP { DUP } ;
+             SWAP ;
+             CDR ;
+             DUP ;
+             CAR ;
+             CDR ;
+             IF_NONE
+               { DUP ;
+                 DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                 EXEC ;
+                 DIP { DROP ; DUP } ;
+                 SWAP ;
+                 SOME ;
+                 DIP { DUP ; DUP ; CDR ; SWAP ; CAR ; CAR } ;
+                 SWAP ;
+                 PAIR ;
+                 PAIR ;
+                 SWAP ;
+                 DROP ;
+                 PUSH unit Unit }
+               { DUP ;
+                 DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                             SWAP } ;
+                       SWAP } ;
+                 EXEC ;
+                 IF { DIP { DUP } ;
+                      SWAP ;
+                      DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                            SWAP } ;
+                      EXEC ;
+                      DIP { DIP { DUP } ; SWAP ; DROP } ;
+                      SWAP ;
+                      DIP { DIP { DROP ; DUP } ; SWAP } ;
+                      SWAP ;
+                      SOME ;
+                      DIP { DIP { DUP } ; SWAP ; DUP ; CDR ; SWAP ; CAR ; CAR } ;
+                      SWAP ;
+                      PAIR ;
+                      PAIR ;
+                      SWAP ;
+                      DIP { SWAP ; DROP } ;
+                      PUSH unit Unit }
+                    { PUSH string
+                           "An unexpired proposal already exists, please wait until it expires before trying again" ;
+                      FAILWITH } ;
+                 SWAP ;
+                 DROP } ;
+             DROP ;
+             DUP ;
+             NIL operation ;
+             PAIR ;
+             DIP { DROP ; DROP ; DROP ; DROP ; DROP } } ;
+         PAIR ;
+         DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ;
+                           DUP ;
+                           DIP { PAIR } ;
+                           SWAP } ;
+                     DUP ;
+                     DIP { PAIR } ;
+                     SWAP } ;
+               SWAP } ;
+         SWAP ;
+         LAMBDA
+           (pair (pair (pair (pair mutez address) timestamp)
+                       (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+                 (pair (lambda
+                          (pair (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address))
+                                address)
+                          (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+                       (pair (lambda (set address) bool)
+                             (lambda
+                                (pair (pair (pair mutez address) timestamp) (pair (pair mutez address) timestamp))
+                                bool))))
+           (pair (list operation)
+                 (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+           { DUP ;
+             CDR ;
+             SWAP ;
+             CAR ;
+             DIP { DUP ; CDR ; SWAP ; CAR ; DIP { DUP ; CDR ; SWAP ; CAR } } ;
+             DUP ;
+             CAR ;
+             DIP { DUP } ;
+             SWAP ;
+             CDR ;
+             DUP ;
+             CAR ;
+             CDR ;
+             DUP ;
+             IF_NONE
+               { PUSH string "There is no proposal to approve" ; FAILWITH }
+               { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ;
+                 SWAP ;
+                 DIP { DUP } ;
+                 PAIR ;
+                 DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                         SWAP } ;
+                                   SWAP } ;
+                             SWAP } ;
+                       SWAP } ;
+                 EXEC ;
+                 NOT ;
+                 IF { PUSH string "You are trying to approve a different proposal" ; FAILWITH }
+                    { DIP { DIP { DUP } ; SWAP } ;
+                      SWAP ;
+                      CAR ;
+                      CAR ;
+                      DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                        SWAP } ;
+                                  SWAP } ;
+                            SWAP } ;
+                      EXEC ;
+                      NOT ;
+                      IF { DIP { DIP { DUP } ; SWAP } ;
+                           SWAP ;
+                           SENDER ;
+                           SWAP ;
+                           PAIR ;
+                           DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                       SWAP } ;
+                                 SWAP } ;
+                           EXEC ;
+                           DIP { DIP { DIP { DUP } ; SWAP } ; SWAP ; DROP } ;
+                           SWAP ;
+                           DIP { SWAP ; DIP { SWAP ; DROP } } ;
+                           PUSH unit Unit }
+                         { PUSH string "You have already approved this proposal" ; FAILWITH } } ;
+                 SWAP ;
+                 DROP } ;
+             DROP ;
+             DIP { DUP } ;
+             SWAP ;
+             NIL operation ;
+             PAIR ;
+             DIP { DROP ; DROP ; DROP ; DROP ; DROP ; DROP ; DROP } } ;
+         PAIR ;
+         DIP { DIP { DUP } ; SWAP } ;
+         SWAP ;
+         LAMBDA
+           (pair (pair unit
+                       (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+                 (lambda (pair (set address) (set address)) bool))
+           (pair (list operation)
+                 (pair (pair (set address) (option (pair (pair mutez address) timestamp))) (set address)))
+           { DUP ;
+             CDR ;
+             SWAP ;
+             CAR ;
+             DUP ;
+             CAR ;
+             DIP { DUP } ;
+             SWAP ;
+             CDR ;
+             DUP ;
+             NIL operation ;
+             SWAP ;
+             CAR ;
+             CDR ;
+             IF_NONE
+               { PUSH string "You are trying to execute a non-existing proposal" ; FAILWITH }
+               { DIP { DIP { DUP } ; SWAP } ;
+                 SWAP ;
+                 CAR ;
+                 CAR ;
+                 DIP { DIP { DIP { DUP } ; SWAP } ; SWAP ; CDR } ;
+                 PAIR ;
+                 DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                             SWAP } ;
+                       SWAP } ;
+                 EXEC ;
+                 IF { DUP ;
+                      CAR ;
+                      CDR ;
+                      CONTRACT unit ;
+                      IF_NONE { PUSH string "bad address for get_contract" ; FAILWITH } {} ;
+                      DIP { DUP } ;
+                      SWAP ;
+                      CAR ;
+                      CAR ;
+                      DIP { DUP } ;
+                      UNIT ;
+                      TRANSFER_TOKENS ;
+                      DUP ;
+                      NIL operation ;
+                      SWAP ;
+                      CONS ;
+                      DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP ; DROP } ;
+                      SWAP ;
+                      DROP ;
+                      SWAP ;
+                      DROP ;
+                      { SWAP ; DIP { SWAP ; DROP } } ;
+                      PUSH unit Unit }
+                    { PUSH unit Unit } ;
+                 SWAP ;
+                 DROP } ;
+             DROP ;
+             DUP ;
+             DIP { DIP { DUP } ; SWAP } ;
+             PAIR ;
+             DIP { DROP ; DROP ; DROP ; DROP ; DROP } } ;
+         PAIR ;
+         DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                             SWAP } ;
+                                       SWAP } ;
+                                 SWAP } ;
+                           SWAP } ;
+                     SWAP } ;
+               SWAP } ;
+         SWAP ;
+         CAR ;
+         DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                                   SWAP } ;
+                                             SWAP } ;
+                                       SWAP } ;
+                                 SWAP } ;
+                           SWAP } ;
+                     SWAP } ;
+               SWAP } ;
+         SWAP ;
+         CDR ;
+         DUP ;
+         CDR ;
+         DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                                         SWAP } ;
+                                                   SWAP } ;
+                                             SWAP } ;
+                                       SWAP } ;
+                                 SWAP } ;
+                           SWAP } ;
+                     SWAP } ;
+               SWAP } ;
+         EXEC ;
+         DROP ;
+         DIP { DUP } ;
+         SWAP ;
+         IF_LEFT
+           { DUP ;
+             IF_LEFT
+               { DUP ;
+                 DUP ;
+                 DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                 PAIR ;
+                 DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                                   SWAP } ;
+                             SWAP } ;
+                       SWAP ;
+                       DUP ;
+                       CDR ;
+                       SWAP ;
+                       CAR ;
+                       SWAP } ;
+                 PAIR ;
+                 EXEC ;
+                 SWAP ;
+                 DROP ;
+                 SWAP ;
+                 DROP }
+               { DUP ;
+                 DUP ;
+                 DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                 PAIR ;
+                 DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                             SWAP } ;
+                       SWAP ;
+                       DUP ;
+                       CDR ;
+                       SWAP ;
+                       CAR ;
+                       SWAP } ;
+                 PAIR ;
+                 EXEC ;
+                 SWAP ;
+                 DROP ;
+                 SWAP ;
+                 DROP } ;
+             SWAP ;
+             DROP }
+           { DUP ;
+             DUP ;
+             DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ;
+             PAIR ;
+             DIP { DIP { DIP { DIP { DIP { DIP { DIP { DUP } ; SWAP } ; SWAP } ; SWAP } ;
+                               SWAP } ;
+                         SWAP } ;
+                   SWAP ;
+                   DUP ;
+                   CDR ;
+                   SWAP ;
+                   CAR ;
+                   SWAP } ;
+             PAIR ;
+             EXEC ;
+             SWAP ;
+             DROP ;
+             SWAP ;
+             DROP } ;
+         DIP { DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP ;
+               DROP } } }
